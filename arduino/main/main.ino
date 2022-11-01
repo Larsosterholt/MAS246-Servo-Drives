@@ -6,28 +6,24 @@
 #define CLK 20
 #define DT 21
 
-
-
-
+//  Varibles for encoder
 int counter = 0;
 int currentStateCLK;
 int lastStateCLK;
-String currentDir = "";
-
-//encoder
 
 
-//servo
+// Creating global Servo object
 Servo elevator;
 
-// door
+// Creating global Stepping object (door)
 Stepping door;
 
-//led
+// Creating global LED object
 LED led;
 
 
 void setup() {
+  //Serial
   Serial.begin(9600);
   Serial.setTimeout(1);
 
@@ -35,7 +31,6 @@ void setup() {
   int led1 = 48;
   int led2 = 47;
   int led3 = 46;
-
   pinMode(led1, OUTPUT);
   pinMode(led2, OUTPUT);
   pinMode(led3, OUTPUT);
@@ -43,6 +38,10 @@ void setup() {
   //Servo motor
   dac_init();
   set_dac(4095, 4095);
+  int servoPwm = 7;  // Pin PWM is conetcted to, for controlling speed
+  int servoDir = 6;  // Pin Servo dirrectron [Phase]
+  pinMode(servoDir, OUTPUT);
+  pinMode(servoPwm, OUTPUT);
 
   //Initialice stepper pins
   pinMode(A12, OUTPUT);  // b phase
@@ -60,18 +59,9 @@ void setup() {
   // Read the initial state of CLK
   lastStateCLK = digitalRead(CLK);
 
-  // Call updateEncoder() when any high/low changed seen
-  // on interrupt 0 (pin 2), or interrupt 1 (pin 3)
+  // Attaching intterupt callback funcktion:
   attachInterrupt(1, updateEncoder, CHANGE);
   attachInterrupt(2, updateEncoder, CHANGE);
-
-  int servoPwm = 7;  // Pin PWM is conetcted to, for controlling speed
-  int servoDir = 6;  // Pin Servo dirrectron [Phase]
-  pinMode(servoDir, OUTPUT);
-  pinMode(servoPwm, OUTPUT);
-
-
-  //Encoder
 }
 
 void updateEncoder() {
@@ -93,22 +83,16 @@ void updateEncoder() {
       elevator.steps++;
       currentDir = "CCW";
     }
-
-    //Serial.print("Direction: ");
-    //Serial.print(currentDir);
-    //Serial.print(" | Counter: ");
-    //Serial.println(elevator.steps);
   }
-
   // Remember last CLK state
   lastStateCLK = currentStateCLK;
 }
 
 
-
+// Varibles used in main loop/state machine
 int userInputInt = 0;
-int elevatorRetVal = 0;
-int doorOpenTime = 500;  //ms
+int elevatorRetVal = 0;  // not in use
+int doorOpenTime = 500;  //[ms] time the door is open/closed
 bool alamActive = 0;
 
 bool okToMoove() {
@@ -120,7 +104,9 @@ bool okToMoove() {
 
 void loop() {
 
-  userInputInt = Serial.parseInt();
+  userInputInt = Serial.parseInt();  // Read data from serial/Python GUI
+
+  // Som print out for debugging:
   Serial.print("Actual floor: ");
   Serial.print(elevator.actualFloor);
   Serial.print(" | Door is: ");
@@ -130,19 +116,21 @@ void loop() {
     Serial.println("open");
   }
 
-  delay(1000);
+  delay(1000); //main loop/state machine  "frequency"
 
+
+  // Use "userInputInt" as innput in state machine:
   switch (userInputInt) {
     case 0:
       if (alamActive == 1) {
         Serial.println("Alam active! Press 999 to rest!");
         break;
       }
-      // Do nothing, no new innput
+      // Do nothing, no new innput (Waiting/defalt)
       break;
 
 
-      // floor buttons
+      // floor buttons (outside cabin)
     case 1:
       if (alamActive == 1) {
         Serial.println("Alam active! Press 999 to rest!");
@@ -150,7 +138,7 @@ void loop() {
       }
       if (elevator.actualFloor == 1) {
         door.beforMooving(doorOpenTime);
-        
+
         break;
       }
       Serial.println("Elevator is called to 1. floor (outside cabin)");
@@ -211,7 +199,7 @@ void loop() {
       }
       door.afterMooving(doorOpenTime);
       break;
-      //Elevator buttons
+      //Elevator buttons (inside cabin)
     case 11:
       if (alamActive == 1) {
         Serial.println("Alam active! Press 999 to rest!");
