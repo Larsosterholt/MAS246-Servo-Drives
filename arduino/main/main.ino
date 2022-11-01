@@ -77,11 +77,10 @@ void updateEncoder() {
     // the encoder is rotating CCW so decrement
     if (digitalRead(DT) != currentStateCLK) {
       elevator.steps--;
-      currentDir = "CW";
+
     } else {
       // Encoder is rotating CW so increment
       elevator.steps++;
-      currentDir = "CCW";
     }
   }
   // Remember last CLK state
@@ -116,7 +115,7 @@ void loop() {
     Serial.println("open");
   }
 
-  delay(1000); //main loop/state machine  "frequency"
+  delay(1000);  //main loop/state machine  "frequency"
 
 
   // Use "userInputInt" as innput in state machine:

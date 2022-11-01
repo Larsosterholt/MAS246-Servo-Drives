@@ -3,11 +3,13 @@
 #include <Arduino.h>
 
 class LED {
-public:
+  //Class of updating led's
+private:
   int led1 = 48;
   int led2 = 47;
   int led3 = 46;
 
+public:
   void setLED(int floor) {
     digitalWrite(led1, 0);
     digitalWrite(led2, 0);

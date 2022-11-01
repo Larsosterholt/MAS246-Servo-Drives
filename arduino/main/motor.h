@@ -3,8 +3,8 @@
 #include "dac.h"
 
 
-#ifndef motor_h
-#define motor_h
+#ifndef MOTOR_h
+#define MOTOR_h
 
 
 class Stepping {
@@ -21,6 +21,7 @@ public:
     pinMode(A15, OUTPUT);  // a enable
   }
 
+  // motor pins:
   int motor_pin_1 = A15;
   int motor_pin_2 = A13;
   int motor_pin_3 = A14;
@@ -29,7 +30,7 @@ public:
 
   bool doorClosed = 1;  // Door closed when 1
 
-
+  //8 halfstep in door-open-dirrection:
   void halfStepUp(int Delay) {
     //set_dac(4095, 4095);
 
@@ -97,6 +98,7 @@ public:
     }
   }
 
+  //8 halfstep in door-close-dirrection:
   void halfStepDwn(int Delay) {
     //set_dac(4095, 4095);
 
@@ -207,43 +209,40 @@ class Servo {
 public:
   //varibles for the floor
   const int stepsPerRev = 2096;
-  int actualFloor = 1;  //defalt floor is 1;
+
   int steps = 0;
   void emStop() {
     run(0);  // stops motor
   }
 
+  int actualFloor = 1;  //defalt floor is 1;
 
+  // go to function. Takes a floor as input, calculate number of steps and move and uses a pid
+  // regulator for position controll
   int goTo(int floor) {
 
-    if (floor == actualFloor) { return 0; }
-    //resetting steps
+    if (floor == actualFloor) { return 0; }  // If input==actual, it returns.
+
     Serial.print("Going to: ");
     Serial.print(floor);
     Serial.println(". floor....");
+    //resetting steps
     steps = 0;
     //compute numer of steps to move:
     int target = (floor - actualFloor) * stepsPerRev;
-    //while (abs(target - steps) >= 1) {
-    int temp = 0;
 
-    long int time0 = millis();
+    // Temporary varible used to ensure the floor is reached, not just once.
+    int temp = 0;
 
     while (1) {
 
+      //Calculate PWM to motor with PID:
       long int motorSpeed = (long int)computePID((float)steps, (float)target);
-      if (millis() >= time0 + 250) {
-        time0 = millis();
-        Serial.print("Current pos: ");
-        Serial.println(steps);
-        Serial.print("Target: ");
-        Serial.println(target);
-        Serial.print(" | motorspeed: ");
-        Serial.println(motorSpeed);
-      }
 
-
+      //Run motor with calculated value:
       run(motorSpeed);
+
+      // Checs if floor i reached, and returns if OK:
       if (abs(target - steps) <= 1) {
         temp++;
       }
@@ -274,7 +273,6 @@ private:
   float elapsedTime;
   float error;
   float lastError;
-  //float input, output;
   float cumError, rateError;
 
   float computePID(float actual, float SetPoint) {
@@ -282,6 +280,7 @@ private:
     currentTime = millis();                             //get current time
     elapsedTime = (float)(currentTime - previousTime);  //compute time elapsed from previous computation
 
+    //Waiting foor loop time:
     while (!(elapsedTime >= dt)) {
       currentTime = millis();                             //get current time
       elapsedTime = (float)(currentTime - previousTime);  //compute time elapsed from previous computation
@@ -290,7 +289,9 @@ private:
     error = SetPoint - actual;                      // determine error
     cumError += error * elapsedTime;                // compute integral
     rateError = (error - lastError) / elapsedTime;  // compute derivative
-    //if(cumError > 60){cumError = 60;}
+
+    // Durty-fix to prevent integrator wind up
+    // Switches if off when the error is small:
     if (abs(error) >= 5) {
       cumError = 0;
     }
@@ -304,46 +305,29 @@ private:
   }
 
 
-
-  void runUp(long int Speed) {
-    speedMap = map(Speed, 0, 100, 0, 100);  //setting max speed
-    //map(value, fromLow, fromHigh, toLow, toHigh)
-    digitalWrite(servoDir, 0);  // setting dirrection to 0 ??
-    analogWrite(servoPwm, speedMap);
-  }
-
-  void runDown(long int Speed) {
-    speedMap = map(Speed, 0, 100, 0, 100);  //setting max speed
-    //map(value, fromLow, fromHigh, toLow, toHigh)
-    digitalWrite(servoDir, 1);  // setting dirrection to 0 ??
-    analogWrite(servoPwm, speedMap);
-  }
-
+  // This function chooses wich dirrection tu run the
+  // motor based on the sing of the innput:
   void run(long int speed) {
     if (speed > 0) {
-      if (speed > 100) { speed = 100; }
+      if (speed > 100) { speed = 100; }  //setting max speed
       runUp(speed);
 
     } else if (speed <= 0) {
-      if (abs(speed) > 100) { speed = 100; }
+      if (abs(speed) > 100) { speed = 100; }  //setting max speed
       runDown(abs(speed));
     }
   }
-};
-/*
-class Motors {
-public:
-  Motors() {
-    //servo setup
-    int servoPwm = 7;  // Pin PWM is conetcted to, for controlling speed
-    int servoDir = 6;  // Pin Servo dirrectron [Phase]
-    pinMode(servoDir, OUTPUT);
-    pinMode(servoPwm, OUTPUT);
+
+
+  void runUp(long int Speed) {
+    digitalWrite(servoDir, 0);  // setting dirrection
+    analogWrite(servoPwm, Speed);
   }
 
-  Servo servo;
-  Stepping stepping;
+  void runDown(long int Speed) {
+    digitalWrite(servoDir, 1);  // setting dirrection
+    analogWrite(servoPwm, Speed);
+  }
 };
 
-*/
 #endif
