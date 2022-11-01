@@ -92,7 +92,7 @@ if __name__ == "__main__":
     gui.title("Elevator")
 
     # set the configuration of GUI window
-    gui.geometry("300x350")
+    gui.geometry("350x350")
 
     # StringVar() is the variable class
     # we create an instance of this class
@@ -115,47 +115,65 @@ if __name__ == "__main__":
     # location inside the root window .
     # when user press the button, the command or
     # function affiliated to that button is executed .
-    button1 = Button(gui, text=' 1. ', fg='black', bg='red',
+
+    #Elevator floor buttons
+    button1 = Button(gui, text=' 1. ', fg='black', bg='blue',
                      command=lambda: press(11), height=1, width=7)
     button1.grid(row=2, column=1)
 
-    button2 = Button(gui, text=' 2. ', fg='black', bg='red',
+    button2 = Button(gui, text=' 2. ', fg='black', bg='blue',
                      command=lambda: press(22), height=1, width=7)
     button2.grid(row=3, column=1)
 
-    button3 = Button(gui, text=' 3. ', fg='black', bg='red',
+    button3 = Button(gui, text=' 3. ', fg='black', bg='blue',
                      command=lambda: press(33), height=1, width=7)
     button3.grid(row=4, column=1)
 
-    button4 = Button(gui, text=' 1. floor call button', fg='black', bg='red',
+    Emergency = Button(gui, text=' Emergency button', fg='black', bg='blue',
+                     command=lambda: press(911), height=1, width=15)
+    Emergency.grid(row=6, column=1)
+
+    Reset = Button(gui, text=' Reset alarm button', fg='black', bg='blue',
+                     command=lambda: press(999), height=1, width=15)
+    Reset.grid(row=7, column=1)
+
+    # Call to  floor buttons
+    button4 = Button(gui, text=' Going Up', fg='black', bg='green',
                      command=lambda: press(1), height=1, width=15)
-    button4.grid(row=2, column=3)
+    button4.grid(row=3, column=3)
 
-    button5 = Button(gui, text=' 2. floor call button', fg='black', bg='red',
+    button5 = Button(gui, text=' Going Up', fg='black', bg='green',
+                     command=lambda: press(23), height=1, width=15)
+    button5.grid(row=6, column=3)
+
+    button6 = Button(gui, text=' Going Down', fg='black', bg='green',
                      command=lambda: press(21), height=1, width=15)
-    button5.grid(row=3, column=3)
+    button6.grid(row=7, column=3)
 
-    button6 = Button(gui, text=' 3. floor call button', fg='black', bg='red',
+    button7 = Button(gui, text=' Going Down', fg='black', bg='green',
                      command=lambda: press(3), height=1, width=15)
-    button6.grid(row=4, column=3)
+    button7.grid(row=9, column=3)
 
     Exit = Button(gui, text=' Exit GUI ', fg='black', bg='red',
                      command=lambda: funcExit(gui), height=1, width=10)
-    Exit.grid(row=15, column=2)
+    Exit.grid(row=20, column=2)
 
-    lLeft = Label(text="Inside")
+    lLeft = Label(text="Inside cabin")
     lLeft.grid(row=1, column=1)
 
     lLeft = Label(text="Outside (call buttons)")
     lLeft.grid(row=1, column=3)
 
-    Emergency = Button(gui, text=' Emergency button', fg='black', bg='red',
-                     command=lambda: press(911), height=1, width=15)
-    Emergency.grid(row=6, column=1)
+    tFirst = Label(text="Button panel 1. floor")
+    tFirst.grid(row=2, column=3)
 
-    Reset = Button(gui, text=' Reset alarm button', fg='black', bg='red',
-                     command=lambda: press(999), height=1, width=15)
-    Reset.grid(row=7, column=1)
+    tSecond = Label(text="Button panel 2. floor")
+    tSecond.grid(row=4, column=3)
+
+    tThird = Label(text="Button panel 3. floor")
+    tThird.grid(row=8, column=3)
+
+
 
 
     #Order = Button(gui, text=' Hei ', fg='black', bg='red',
