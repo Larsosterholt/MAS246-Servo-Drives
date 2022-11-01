@@ -5,11 +5,9 @@ import serial
 import time
 
 arduino = serial.Serial(port='COM3', baudrate=9600, timeout=.1)
-
-
-# Should be port="COM4" or port="COM3" for windows
+# windows: port="COM4" or port="COM3"
 # linux: port="/dev/ttyACM0"
-# Virtual port: port="/dev/pts/6" in a tertminal: cat < /dev/pts/> for debugging
+# Virtual port: <port="/dev/pts/6> in a tertminal: cat < /dev/pts/> for debugging
 
 # To kill prosseses fuser -k /dev/ttyACM0 in case if the port still is open after exiting GUI
 
